@@ -41,6 +41,63 @@ The database may take a while to load on first visit.
 </div>
 
     <div style="height: 100vh; width: 100vw" id="root"></div>
-     <script> (function() { function removeLoader() { const loader = document.getElementById("app-loader"); if (!loader) return; loader.style.transition = "opacity 0.3s ease"; loader.style.opacity = "0"; setTimeout(function() { loader.remove(); }, 300); } function registerHandler() { if ( window.Shiny && typeof Shiny.addCustomMessageHandler === "function" ) { Shiny.addCustomMessageHandler( "app_ready", function(message) { removeLoader(); } ); } else { setTimeout(registerHandler, 100); } } registerHandler(); // Change message after 8 seconds setTimeout(function() { const msg = document.getElementById("app-loader-submessage"); if (msg) { msg.textContent = "Still loading — the first visit can take a little longer."; } }, 8000); // Safety fallback so the overlay cannot stay forever setTimeout(function() { const msg = document.getElementById("app-loader-submessage"); if (msg) { msg.textContent = "The app is taking longer than expected to initialise."; } }, 30000); })(); </script> 
+    
+<script>
+
+(function waitForShiny() {
+
+  if (window.jQuery) {
+
+    window.jQuery(document).one("shiny:connected", function() {
+
+      const loader = document.getElementById("app-loader");
+
+      if (loader) {
+        loader.style.transition = "opacity 0.3s ease";
+        loader.style.opacity = "0";
+
+        setTimeout(function() {
+          loader.remove();
+        }, 300);
+      }
+
+    });
+
+  } else {
+    setTimeout(waitForShiny, 100);
+  }
+
+})();
+
+// Update message if startup is slower than usual
+setTimeout(function() {
+
+  const msg = document.getElementById("app-loader-submessage");
+
+  if (msg) {
+    msg.textContent =
+      "Still loading — the first visit can take a little longer.";
+  }
+
+}, 8000);
+
+// Safety fallback: never leave the overlay forever
+setTimeout(function() {
+
+  const loader = document.getElementById("app-loader");
+
+  if (loader) {
+    loader.style.transition = "opacity 0.3s ease";
+    loader.style.opacity = "0";
+
+    setTimeout(function() {
+      loader.remove();
+    }, 300);
+  }
+
+}, 20000);
+
+</script>
+
   </body>
 </html>
