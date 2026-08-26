@@ -41,8 +41,37 @@
 </div>
 
     <div style="height: 100vh; width: 100vw" id="root"></div>
-     <script> (function() { function hideLoader() { const loader = document.getElementById("app-loader"); if (loader) { loader.style.transition = "opacity 0.3s ease"; loader.style.opacity = "0"; setTimeout(function() { loader.remove(); }, 300); } } function waitForShiny() { if ( window.Shiny && Shiny.initializedPromise ) { Shiny.initializedPromise.then(function() { /* Give the UI a brief moment to finish painting, then reveal the app. */ setTimeout(hideLoader, 500); }).catch(function(error) { console.error("Shiny initialization error:", error); }); } else { setTimeout(waitForShiny, 100); } } waitForShiny(); /* Change message if loading is taking longer. */ setTimeout(function() { const msg = document.getElementById("app-loader-submessage"); if (msg) { msg.textContent = "Still loading — the first visit can take a little longer."; } }, 8000); /* Safety fallback: never leave the user permanently trapped behind the loading screen. */ setTimeout(function() { const loader = document.getElementById("app-loader"); if (loader) { hideLoader(); } }, 30000); })(); </script> 
+    
+<script>
+(function waitForShiny() {
+  if (window.jQuery) {
+    // Remove loader once initial Shiny calculations have finished
+    window.jQuery(document).one("shiny:idle", function() {
+      const loader = document.getElementById("app-loader");
+      if (loader) {
+        loader.style.transition = "opacity 0.3s ease";
+        loader.style.opacity = "0";
+        setTimeout(function() {
+          loader.remove();
+        }, 300);
+      }
+    });
+
+  } else {
+    setTimeout(waitForShiny, 100);
+  }
+
+})();
+
+setTimeout(function() {
+  const msg = document.getElementById("app-loader-submessage");
+
+  if (msg) {msg.textContent = "Still loading — the first visit can take a little longer.";
+  }
+}, 8000);
+</script>
+
   </body>
 </html>
 
-<!-- build: 20260813155744 -->
+<!-- build: 20260826164153 -->
